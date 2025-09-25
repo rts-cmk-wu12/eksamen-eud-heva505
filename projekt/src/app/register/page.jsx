@@ -52,37 +52,54 @@ export default function RegisterPage() {
             <form className="space-y-4 rounded-2xl border bg-white p-6 "onSubmit={onSubmit}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">First Name</label>
-                        <input  className="input" value={form.firstName} onChange={(e) => setForm
-                        ((s) => ({ ...s, firstName : e.target.value }))}  />
-
+                        <label htmlFor="reg-firstname" className="block text-sm font-medium mb-1">First Name</label>
+                        <input
+                          id="reg-firstname"
+                          name="firstName"
+                          className="input"
+                          value={form.firstName}
+                          onChange={(e) => setForm((s) => ({ ...s, firstName : e.target.value }))}  />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1">Last Name</label>
-                        <input  className="input" value={form.lastName} onChange={(e) => setForm
-                        ((s) => ({ ...s, lastName : e.target.value }))}  />
-
+                        <label htmlFor="reg-lastname" className="block text-sm font-medium mb-1">Last Name</label>
+                        <input
+                          id="reg-lastname"
+                          name="lastName"
+                          className="input"
+                          value={form.lastName}
+                          onChange={(e) => setForm((s) => ({ ...s, lastName : e.target.value }))}  />
                     </div>
                     </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Email</label>
-                    <input  className="input" type="email" value={form.email} onChange={(e) => setForm
-                    ((s) => ({ ...s, email : e.target.value }))}  />
-
+                    <label htmlFor="reg-email" className="block text-sm font-medium mb-1">Email</label>
+                    <input
+                      id="reg-email"
+                      name="email"
+                      className="input"
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm((s) => ({ ...s, email : e.target.value }))}  />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" >
-
-                
                 <div>
-                    <label className="block text-sm font-medium mb-1">Password</label>
-                    <input  className="input" type="password" value={form.password} onChange={(e) => setForm
-                    ((s) => ({ ...s, password : e.target.value }))}  />
-                    
+                    <label htmlFor="reg-password" className="block text-sm font-medium mb-1">Password</label>
+                    <input
+                      id="reg-password"
+                      name="password"
+                      className="input"
+                      type="password"
+                      value={form.password}
+                      onChange={(e) => setForm((s) => ({ ...s, password : e.target.value }))}  />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Confirm password </label>
-                     <input  className="input" type="password" value={form.confirm} onChange={(e) => setForm
-                    ((s) => ({ ...s, confirm : e.target.value }))}  />
+                    <label htmlFor="reg-confirm" className="block text-sm font-medium mb-1">Confirm password </label>
+                     <input
+                       id="reg-confirm"
+                       name="confirm"
+                       className="input"
+                       type="password"
+                       value={form.confirm}
+                       onChange={(e) => setForm((s) => ({ ...s, confirm : e.target.value }))}  />
                 </div>
                 </div>
      {msg.text && <p className={

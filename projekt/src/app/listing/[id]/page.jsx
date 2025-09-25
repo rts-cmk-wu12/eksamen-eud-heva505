@@ -1,3 +1,5 @@
+
+
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -7,7 +9,7 @@ import ItemCard from "@/components/ItemCard";
 import ProposeButton from "@/components/ProposeButton";
 
 export default async function ListingDetail({ params }) {
-  const { id } = params;                
+ const { id } = await params;                
   const item = await fetchListingById(id);
 
   if (!item) notFound();

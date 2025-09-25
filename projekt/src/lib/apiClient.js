@@ -1,23 +1,26 @@
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-/* Utils */
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
+
+/* Utils*/
 function makeURL(path, params = {}) {
   const url = new URL(path, BASE_URL);
   Object.entries(params).forEach(([k, v]) => {
-    if (v !== undefined && v !== null && v !== "") {
+    if (v !== undefined && v !== null && v !== "")
       url.searchParams.set(k, String(v));
-    }
   });
   return url.toString();
 }
 
 async function safeError(res) {
   try {
-    const ct = res.headers?.get?.("content-type") || "";
+    const ct = res.headers.get("content-type") || "";
     if (ct.includes("application/json")) {
       const j = await res.json();
-      return j?.message || j?.error || j?.errors?.[0]?.message || JSON.stringify(j);
+      return (
+        j?.message || j?.error || j?.errors?.[0]?.message || JSON.stringify(j)
+      );
     } else {
       const t = await res.text();
       return t?.slice(0, 500);
@@ -27,13 +30,13 @@ async function safeError(res) {
   }
 }
 
-/* Token & userId storage */
+/*Auth LS */
 export const TOKEN_KEY = "swaphub_token";
 export const USER_ID_KEY = "swaphub_user_id";
 
 export function setToken(token) {
   try {
-    localStorage.setItem(TOKEN_KEY, String(token));
+    localStorage.setItem(TOKEN_KEY, token);
   } catch {}
 }
 export function getToken() {
@@ -67,49 +70,60 @@ export function clearUserId() {
   } catch {}
 }
 
-/* authFetch */
+/*Fetcher */
 export async function authFetch(path, opts = {}) {
   const token = getToken();
-  const init = { ...opts };
-  const hdrs = new Headers(init.headers || {});
 
-  const body = init.body;
+  const headers = new Headers(opts.headers || {});
+  const body = opts.body;
   const isForm =
     (typeof FormData !== "undefined" && body instanceof FormData) ||
     (typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams);
 
-  if (!hdrs.has("Content-Type") && !isForm && typeof body === "string") {
-    hdrs.set("Content-Type", "application/json");
+  if (!headers.has("Content-Type") && !isForm && typeof body === "string") {
+    headers.set("Content-Type", "application/json");
   }
-  if (token) hdrs.set("Authorization", `Bearer ${token}`);
 
-  init.headers = hdrs;
+  if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  const url = path.startsWith("http") ? path : makeURL(path);
-  const res = await fetch(url, { ...init, cache: "no-store" });
+  const res = await fetch(path.startsWith("http") ? path : makeURL(path), {
+    ...opts,
+    headers,
+    cache: "no-store",
+  });
   return res;
 }
 
 /* Auth */
 export async function apiLogin(email, password) {
   const emailClean = String(email || "").trim().toLowerCase();
-  const passClean  = String(password || "").trim();
-  if (!emailClean || !passClean) throw new Error("Please enter email and password.");
+ const passClean  = String(password || "").trim();
+ if (!emailClean || !passClean) {
+    throw new Error("Please enter email and password.");
+  }
 
-  const body = new URLSearchParams({ email: emailClean, password: passClean, username: emailClean });
+  const body = new URLSearchParams();
+  body.set("email", emailClean);
+  body.set("password", passClean);
+
+  body.set("username", emailClean);
+
   const res = await fetch(makeURL("/auth/token"), { method: "POST", body });
 
   if (!res.ok) {
     let serverMsg = "Invalid email or password";
     try {
-      const ct = res.headers.get("content-type") || "";
-      serverMsg = ct.includes("application/json") ? (await res.json())?.error || serverMsg : (await res.text()) || serverMsg;
+    const ct = res.headers.get("content-type") || "";
+      serverMsg = ct.includes("application/json")
+        ? (await res.json())?.error || serverMsg
+        : (await res.text()) || serverMsg;
     } catch {}
     throw new Error(serverMsg);
   }
 
-  const data  = await res.json();
-  const token = data?.token || data?.accessToken || data?.jwt;
+  const data = await res.json();
+
+ const token = data?.token || data?.accessToken || data?.jwt;
   if (token) setToken(token);
 
   const userId = data?.user?.id ?? data?.userId ?? data?.id;
@@ -131,7 +145,8 @@ export async function apiRegister({ email, password, firstName, lastName }) {
     const msg = await safeError(res);
     throw new Error(msg || "Registration failed");
   }
-  const data  = await res.json();
+  const data = await res.json();
+
   const token = data?.token || data?.accessToken || data?.jwt;
   if (token) setToken(token);
 
@@ -153,13 +168,18 @@ export async function apiGetMe() {
     const msg = await safeError(res);
     throw new Error(msg || "Failed to fetch profile");
   }
-  const me  = await res.json();
+  const me = await res.json();
   const uid = me?.id ?? me?._id;
   if (uid) setUserId(uid);
   return me;
 }
 
-export async function apiUpdateProfile({ email, firstName, lastName, password }) {
+export async function apiUpdateProfile({
+  email,
+  firstName,
+  lastName,
+  password,
+}) {
   const id = getUserId();
   if (!id) throw new Error("Missing user id");
 
@@ -175,7 +195,11 @@ export async function apiUpdateProfile({ email, firstName, lastName, password })
     throw new Error("Please enter your password to save account changes.");
   }
 
-  const res = await authFetch(`/api/v1/users/${id}`, { method: "PUT", body: form });
+  const res = await authFetch(`/api/v1/users/${id}`, {
+    method: "PUT",
+    body: form,
+  });
+
   if (!res.ok) {
     const msg = await safeError(res);
     throw new Error(msg || "Failed to update profile");
@@ -188,7 +212,11 @@ export async function apiChangePassword({ password }) {
   if (!id) throw new Error("Missing user id");
 
   const body = new URLSearchParams({ password });
-  const res = await authFetch(`/api/v1/users/${id}`, { method: "PUT", body });
+
+  const res = await authFetch(`/api/v1/users/${id}`, {
+    method: "PUT",
+    body,
+  });
   if (!res.ok) {
     const msg = await safeError(res);
     throw new Error(msg || "Failed to change password");
@@ -202,16 +230,87 @@ export async function apiLogout() {
   return true;
 }
 
-/* Listings */
+/*Listings */
+
 export async function fetchListings(params = {}) {
+  const res = await fetch(makeURL("/api/v1/listings", params), {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Could not fetch listings");
+  const data = await res.json();
+  return Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data?.rows) ? data.rows : []));
+}
+
+
+export async function fetchListingsPaged({ page = 1, limit = 6, search = "" } = {}) {
+  
+  const params = { page, limit };
+  if (search) params.search = search;
+
   const res = await fetch(makeURL("/api/v1/listings", params), { cache: "no-store" });
   if (!res.ok) throw new Error("Could not fetch listings");
   const data = await res.json();
-  return Array.isArray(data) ? data : [];
+
+ 
+  if (data && Array.isArray(data.data) && data.meta) {
+    const total = data.meta.total ?? data.data.length;
+    const totalPages =
+      data.meta.totalPages ?? Math.max(1, Math.ceil(total / (data.meta.limit ?? limit)));
+    return {
+      items: data.data,
+      total,
+      totalPages,
+      page: data.meta.page ?? page,
+      perPage: data.meta.limit ?? limit,
+    };
+  }
+
+  
+  if (data && Array.isArray(data.rows) && typeof data.count === "number") {
+    const total = data.count;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    return { items: data.rows, total, totalPages, page, perPage: limit };
+  }
+
+
+  if (Array.isArray(data)) {
+    const all = data;
+
+    
+    const hinted = Number(res.headers.get("x-total-count"));
+    const total = Number.isFinite(hinted) && hinted > 0 ? hinted : all.length;
+
+    
+    const q = search.trim().toLowerCase();
+    const filtered = q
+      ? all.filter(
+          (it) =>
+            (it?.title || "").toLowerCase().includes(q) ||
+            (it?.description || "").toLowerCase().includes(q)
+        )
+      : all;
+
+    const totalAfter = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalAfter / limit));
+    const start = (page - 1) * limit;
+    const items = filtered.slice(start, start + limit);
+
+    return { items, total: totalAfter, totalPages, page, perPage: limit };
+  }
+
+  // fallback 
+  return { items: [], total: 0, totalPages: 1, page, perPage: limit };
+}
+
+
+export async function fetchAllListings() {
+  return await fetchListings();
 }
 
 export async function fetchListingById(id) {
-  const res = await fetch(makeURL(`/api/v1/listings/${id}`), { cache: "no-store" });
+  const res = await fetch(makeURL(`/api/v1/listings/${id}`), {
+    cache: "no-store",
+  });
   if (!res.ok) return null;
   return await res.json();
 }
@@ -221,12 +320,19 @@ export async function fetchListingsByUser(userId) {
   return await fetchListings({ userId });
 }
 
+/* Newsletter API  */
 export async function apiNewsletterSubscribe(email) {
   const body = new URLSearchParams({ email: String(email || "").trim() });
-  const res = await fetch(makeURL("/api/v1/newsletter"), { method: "POST", body });
+
+  const res = await fetch(makeURL("/api/v1/newsletter"), {
+    method: "POST",
+    body,
+  });
+
   if (!res.ok) {
     const msg = await safeError(res);
     throw new Error(msg || "Subscription failed");
   }
+
   return { success: true };
 }

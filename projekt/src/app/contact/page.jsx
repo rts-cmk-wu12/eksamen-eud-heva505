@@ -87,8 +87,16 @@ export default function Contactpage() {
             <form className="space-y-4" onSubmit={submitContact}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Name</label>
+                  <label
+                    htmlFor="contact-name"
+                    className="block text-sm font-medium mb-1"
+                  >
+                    Name
+                  </label>
                   <input
+                    id="contact-name"
+                    name="name"
+                    autoComplete="name"
                     className="input"
                     value={contact.name}
                     onChange={(e) =>
@@ -98,10 +106,16 @@ export default function Contactpage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor="contact-email"
+                    className="block text-sm font-medium mb-1"
+                  >
                     Email
                   </label>
                   <input
+                    id="contact-email"
+                    name="email"
+                    autoComplete="email"
                     className="input"
                     type="email"
                     value={contact.email}
@@ -113,10 +127,15 @@ export default function Contactpage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="contact-message"
+                  className="block text-sm font-medium mb-1"
+                >
                   Message
                 </label>
                 <textarea
+                  id="contact-message"
+                  name="message"
                   className="input"
                   rows={6}
                   value={contact.message}
@@ -167,9 +186,16 @@ export default function Contactpage() {
               newsletter!
             </p>
             <form className="space-y-3" onSubmit={submitNewsletter}>
-              <label className="block text-sm font-medium">Email</label>
+              <label
+                htmlFor="newsletter-email"
+                className="block text-sm font-medium"
+              >
+                Email
+              </label>
               <div className="flex items-center gap-2">
                 <input
+                  id="newsletter-email"
+                  name="newsletterEmail"
                   className="input flex-1"
                   type="email"
                   value={newsEmail}

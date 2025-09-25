@@ -1,11 +1,11 @@
-
 export function getImageUrl(item) {
-    return (
-        item?.assets?.url ||
-        item?.assets?.href ||
-        item?.assets?.[0]?.url ||
-        item?.assets?.[0]?.href ||
-        item?.imageUrl ||
-        "/placeholder.png"
-    );
+  const url =
+    item?.asset?.url ||
+    item?.asset?.href ||
+    item?.assets?.[0]?.url ||
+    item?.assets?.[0]?.href ||
+    item?.imageUrl ||
+    null;
+
+  return url && typeof url === "string" ? url : null;
 }

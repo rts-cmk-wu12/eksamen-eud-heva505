@@ -1,4 +1,3 @@
-
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -14,14 +13,21 @@ import {
 } from "@/lib/apiClient";
 
 const AuthContext = createContext(null);
-export const useAuth = () => useContext(AuthContext);
+AuthContext.displayName = "AuthContext";
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth must be used within <AuthProvider> ");
+  }
+  return ctx;
+};
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(false); 
   const booted = useRef(false);
 
-  
   useEffect(() => {
     if (booted.current) return;
     booted.current = true;
@@ -31,8 +37,7 @@ export function AuthProvider({ children }) {
         const token = getToken();
         const uid = getUserId();
 
-     
-    
+       
         if (!token || !uid) {
           setUser(null);
           return;
@@ -40,12 +45,12 @@ export function AuthProvider({ children }) {
 
         const me = await apiGetMe();
         if (me?.id || me?._id) {
-      
+         
           setUserId(me.id ?? me._id);
         }
         setUser(me);
-      } catch (err) {
-      
+      } catch {
+        
         clearToken();
         clearUserId();
         setUser(null);
@@ -56,9 +61,9 @@ export function AuthProvider({ children }) {
 
     boot();
 
+    
     function onStorage(e) {
       if (e.key === "swaphub_token" || e.key === "swaphub_user_id") {
-      
         booted.current = false;
         setReady(false);
         boot();
@@ -68,23 +73,20 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
- 
   async function signIn(email, password) {
-   await apiLogin(email, password); 
-    const me = await apiGetMe();
+    await apiLogin(email, password);  
+    const me = await apiGetMe();       
     if (me?.id || me?._id) setUserId(me.id ?? me._id);
     setUser(me);
     return me;
   }
 
-
   async function signOut() {
     try {
-      await apiLogout(); 
+      await apiLogout();
     } finally {
       setUser(null);
-    
-      window.location.replace("/");
+      window.location.replace("/");    
     }
   }
 
@@ -92,10 +94,10 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       isLoggedIn: !!user,
-      ready,
+      ready,             
+      loading: !ready,    
       signIn,
       signOut,
-     
       refresh: async () => {
         const me = await apiGetMe();
         if (me?.id || me?._id) setUserId(me.id ?? me._id);
