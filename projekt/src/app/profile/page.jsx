@@ -9,11 +9,14 @@ import {
   getToken,
 } from "@/lib/apiClient";
 
+// Hjælpere
+
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v || "");
 
 export default function ProfilePage() {  
   const router = useRouter();
 
+    // Lokal UI/state
   const [loading, setLoading] = useState(true);
   const [me, setMe] = useState(null);
 
@@ -61,11 +64,15 @@ export default function ProfilePage() {
     })();
   }, [router]);
 
+
+ // Gem profilændringer
+
   async function saveProfile(e) {
     e.preventDefault();
     if (savingProfile) return;
     setPMsg({ type: "", text: "" });
 
+     // Basal validering
     if (!isEmail(profile.email)) {
       setPMsg({ type: "error", text: "please enter a valid email" });
       return;
@@ -86,6 +93,7 @@ export default function ProfilePage() {
       return;
     }
 
+ // Gem via API
     setSavingProfile(true);
     try {
       const updated = await apiUpdateProfile({
@@ -106,6 +114,8 @@ export default function ProfilePage() {
       setSavingProfile(false);
     }
   }
+
+ // Skift kodeord
 
   async function changePassword(e) {
     e.preventDefault();
@@ -139,6 +149,8 @@ export default function ProfilePage() {
     }
   }
 
+    // Loading-skelet
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -147,7 +159,7 @@ export default function ProfilePage() {
       </div>
     );
   }
-
+  // Render: profil- og kodeordssektioner
   return (
     <div className="space-y-10">
       <header className="space-y-1">

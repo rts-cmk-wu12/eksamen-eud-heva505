@@ -29,7 +29,9 @@ export default function Footer() {
     <footer className="border-t bg-white">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          {/* Brand + Social */}
+
+
+         
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <img src="/logo.svg" alt="SwapHub" className="h-10 w-auto" />
@@ -60,7 +62,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Columns */}
+     
           <div>
             <h3 className="font-medium mb-4">About SwapHub</h3>
             <ul className="space-y-2 text-sm text-gray-700">

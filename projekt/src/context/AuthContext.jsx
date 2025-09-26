@@ -12,6 +12,8 @@ import {
   clearUserId,
 } from "@/lib/apiClient";
 
+// Auth-kontekst og hook
+
 const AuthContext = createContext(null);
 AuthContext.displayName = "AuthContext";
 
@@ -22,6 +24,8 @@ export const useAuth = () => {
   }
   return ctx;
 };
+
+// AuthProvider: holder brugerstatus og login/logud-logik
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -107,6 +111,7 @@ export function AuthProvider({ children }) {
     }),
     [user, ready]
   );
+// Udstil kontekst til underliggende komponenter
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

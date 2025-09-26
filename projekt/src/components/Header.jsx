@@ -78,7 +78,7 @@ export default function Header() {
             )}
           </div>
 
-          {/* زر الموبايل */}
+         
           <button
             className="md:hidden inline-flex items-center justify-center rounded-lg border px-3 py-2"
             onClick={() => setOpen((v) => !v)}

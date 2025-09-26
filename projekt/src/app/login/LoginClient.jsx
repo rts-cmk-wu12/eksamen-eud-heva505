@@ -1,4 +1,4 @@
-// app/login/LoginClient.jsx
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
+// Hjælpere
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v || "");
 
 export default function LoginClient() {
@@ -56,7 +57,12 @@ export default function LoginClient() {
     return () => clearTimeout(t);
   }, [msg.text]);
 
+
+
+    // Render
   return (
+
+    
     <div className="mx-auto w-full max-w-md">
       <h1 className="text-2xl font-semibold mb-6">Sign in</h1>
 

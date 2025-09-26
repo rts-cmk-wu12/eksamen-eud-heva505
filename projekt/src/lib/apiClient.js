@@ -3,7 +3,8 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
 
-/* Utils*/
+// Hjælpefunktioner: opbygning af URLs + læsning af serverfejl
+
 function makeURL(path, params = {}) {
   const url = new URL(path, BASE_URL);
   Object.entries(params).forEach(([k, v]) => {
@@ -13,6 +14,7 @@ function makeURL(path, params = {}) {
   return url.toString();
 }
 
+//safeError: forsøger at udtrække en forståelig fejlbesked fra et Response.
 async function safeError(res) {
   try {
     const ct = res.headers.get("content-type") || "";
@@ -30,7 +32,8 @@ async function safeError(res) {
   }
 }
 
-/*Auth LS */
+// Autentikationshjælpere til localStorage
+
 export const TOKEN_KEY = "swaphub_token";
 export const USER_ID_KEY = "swaphub_user_id";
 
@@ -70,7 +73,8 @@ export function clearUserId() {
   } catch {}
 }
 
-/*Fetcher */
+// Fetch-wrapper der tilføjer token og sætter headers
+
 export async function authFetch(path, opts = {}) {
   const token = getToken();
 
@@ -94,7 +98,8 @@ export async function authFetch(path, opts = {}) {
   return res;
 }
 
-/* Auth */
+// Auth-endpoints (login, registrering, min profil, opdatering, skift kodeord, logout)
+
 export async function apiLogin(email, password) {
   const emailClean = String(email || "").trim().toLowerCase();
  const passClean  = String(password || "").trim();
@@ -230,7 +235,7 @@ export async function apiLogout() {
   return true;
 }
 
-/*Listings */
+// Listings: alle elementer, paginering, efter ID, efter bruger
 
 export async function fetchListings(params = {}) {
   const res = await fetch(makeURL("/api/v1/listings", params), {
@@ -319,8 +324,8 @@ export async function fetchListingsByUser(userId) {
   if (!userId) return [];
   return await fetchListings({ userId });
 }
+// Newsletter-endpoint
 
-/* Newsletter API  */
 export async function apiNewsletterSubscribe(email) {
   const body = new URLSearchParams({ email: String(email || "").trim() });
 
